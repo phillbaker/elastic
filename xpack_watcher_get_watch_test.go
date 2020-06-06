@@ -51,6 +51,62 @@ func TestXPackWatcherGetWatchBuildURL(t *testing.T) {
 	}
 }
 
+func TestXPackWatch_UnmarshalJSON(t *testing.T) {
+	tests := []struct {
+		Input     []byte
+		ExpectErr bool
+	}{
+		{
+			[]byte(`
+				{
+			    "input": {
+			      "simple": {
+			        "payload": {
+			          "send": "yes"
+			        }
+			      }
+			    },
+			    "condition": {
+			      "always": {}
+			    },
+			    "trigger": {
+			      "schedule": {
+			        "hourly": {
+			          "minute": [0, 5]
+			        }
+			      }
+			    },
+			    "actions": {
+			      "test_index": {
+			        "index": {
+			          "index": "test"
+			        }
+			      }
+			    }
+			  }
+			`),
+			false,
+		},
+	}
+
+	for i, test := range tests {
+		var watch XPackWatch
+		err := json.Unmarshal(test.Input, &watch)
+		if err != nil {
+			t.Errorf("#%d: expected no error, got %v", i+1, err)
+		}
+		if watch.Input == nil {
+			t.Errorf("#%d: expected Input!=nil", i+1)
+		}
+		if watch.Condition == nil {
+			t.Errorf("#%d: expected Condition!=nil", i+1)
+		}
+		if watch.Actions == nil {
+			t.Errorf("#%d: expected Actions!=nil", i+1)
+		}
+	}
+}
+
 func TestXPackWatchActionStatus_UnmarshalJSON(t *testing.T) {
 	tests := []struct {
 		Input     []byte
